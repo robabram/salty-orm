@@ -15,13 +15,17 @@ Connect to a MySQL Database
 
 `dbconn.db_connect(user='tester', password='****', database='test_db', host='xx.xx.xx.xx', buffered=True)`
 
-`results = TestModel(dbconn).objects.filter(active=1).order_by('a_field')`
+Simple Query
+
+`results = TestModel(dbconn).objects.filter(status=1).order_by('categories')`
 
 Limit Fields Returned
 
-`results = TestModel(dbconn).objects.distinct().values_list('id', 'cert_file').filter(Q('name', QOper.O_LIKE, 'zap*') & Q('name', QOper.O_LIKE, 'zoo*') | Q('name', QOper.O_IS, 'abc') & Q('name', QOper.O_IS, '123')).order_by('modified').all())`
+`results = TestModel(dbconn).objects.distinct().values_list('id', 'tariffs').filter(Q('subject', QOper.O_LIKE, 'zap*') & Q('subject', QOper.O_LIKE, 'zoo*') | Q('subject', QOper.O_IS, 'abc') & Q('subject', QOper.O_IS, '123')).order_by('modified').all())`
 
-`result = TestModel(dbconn).objects.values_list('id', 'modified', 'name').get(~Q('id', QOper.O_EQUAL, 1) & Q('id', QOper.O_EQUAL, 1))`
+Return all records with an ID value greater than 5 and exclude ID = 10
+
+`result = TestModel(dbconn).objects.values_list('id', 'modified', 'name').get(~Q('id', QOper.O_EQUAL, 10) & Q('id', QOper.O_GT_EQUAL, 5))`
 
 Printing SQL Statement
 
