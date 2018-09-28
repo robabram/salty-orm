@@ -7,6 +7,8 @@ This ORM was written to make it easy to write python command line utilities that
 
 The Salty-ORM is very similar to Django's ORM, including supporting queries using a Q object similar to Django's ORM.
 
+Records can be changed and saved, new records can be created and inserted as well.
+
 **Examples**
 
 Connect to a MySQL Database
@@ -18,6 +20,14 @@ Connect to a MySQL Database
 Simple Query
 
 `results = TestModel(dbconn).objects.filter(status=1).order_by('categories')`
+
+Query, Update and Save
+
+`record = TestModel(dbconn).objects.get(id=1)`
+
+`record.category = 'new'`
+
+`record.save()`
 
 Limit Fields Returned
 
