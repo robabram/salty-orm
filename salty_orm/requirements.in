@@ -1,0 +1,4 @@
+pip-tools
+dateparser
+python-dateutil
+mysql-connector
