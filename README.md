@@ -37,8 +37,8 @@ Limit Records Returned
 
 *Note: The Salty-ORM Get() method does not support Django's interpreted name parts. IE: id__eq=1*
 
-See examples/models.py for an example of a Salty-ORM model. 
+See **examples/models.py** for an example of a Salty-ORM model. 
 
-The clone_django_models.py program can be used to scan a Django project and build Salty-ORM compatible models. 
+The **utilities/clone_django_models.py** program can be used to scan a Django project and build Salty-ORM compatible models. 
 
 Contributions and questions are welcome.
