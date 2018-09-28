@@ -10,7 +10,7 @@
 from salty_orm.db.query import BaseUtilityModel
 
 
-class TestModel(BaseUtilityModel):
+class RulingModel(BaseUtilityModel):
 
     id = None  # type: int
     created = None  # type: datetime

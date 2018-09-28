@@ -27,7 +27,7 @@ Query, Update and Save
 
 `record.category = 'new'`
 
-`record.save()`
+`record.save(cleaned=True)`
 
 Limit Fields Returned
 
