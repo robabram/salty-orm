@@ -3,7 +3,7 @@ A Python 3.x ORM implementing a subset of the Django ORM object model features, 
 
 The purpose of this ORM is to replicate a good portion of Django's ORM, but not have a Django dependency.
 
-This ORM was written to make it easy to write python command line utilities that perform maintenance and queries on the Django backend database.
+This ORM was written to make it easy to write python command line utilities that perform maintenance and queries on a Django backend database.
 
 The Salty-ORM is very similar to Django's ORM, including supporting queries using a Q object similar to Django's ORM.
 
