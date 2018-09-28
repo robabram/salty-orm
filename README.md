@@ -35,11 +35,11 @@ Limit Fields Returned
 
 Return all records with an ID value greater than 5 and exclude ID = 10
 
-`result = TestModel(dbconn).objects.values_list('id', 'modified', 'name').get(~Q('id', QOper.O_EQUAL, 10) & Q('id', QOper.O_GT_EQUAL, 5))`
+`results = TestModel(dbconn).objects.values_list('id', 'modified', 'name').get(~Q('id', QOper.O_EQUAL, 10) & Q('id', QOper.O_GT_EQUAL, 5))`
 
 Printing SQL Statement
 
-`sql = TestModel(dbconn).objects.filter(active=1).order_by('a_field').to_sql()`
+`sql_text = TestModel(dbconn).objects.filter(active=1).order_by('a_field').to_sql()`
 
 Counts
 
@@ -47,7 +47,7 @@ Counts
 
 Limit Records Returned
  
-`result = TestModel(dbconn).objects.all().limit(10)`
+`results = TestModel(dbconn).objects.all().limit(10)`
 
 *Note: The Salty-ORM Get() method does not support Django's interpreted name parts. IE: id__eq=1*
 
