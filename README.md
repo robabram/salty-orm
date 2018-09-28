@@ -1,5 +1,5 @@
 # Salty-ORM
-A Python 3.x ORM implementing a Django ORM object model features, supports Sqlite and MySql.
+A Python 3.x ORM implementing a subset of the Django ORM object model features, supports Sqlite and MySql.
 
 The purpose of this ORM is to replicate a good portion of Django's ORM, but not have a Django dependency.
 
