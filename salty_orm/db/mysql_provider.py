@@ -8,8 +8,8 @@
 import collections
 import mysql.connector as mysql
 
-from salty_orm.db.base_sqlite3 import SqliteDBConnection
-from salty_orm.db.base_connection import NotConnectedError, ConnectionFailedError, ExecStatementFailedError, InvalidStatementError
+from salty_orm.db.sqlite3_provider import SqliteDBConnection
+from salty_orm.db.base_provider import NotConnectedError, ConnectionFailedError, ExecStatementFailedError, InvalidStatementError
 
 
 class MySQLDBConnection(SqliteDBConnection):

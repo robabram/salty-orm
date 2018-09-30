@@ -8,7 +8,7 @@
 #
 
 from enum import IntEnum
-from salty_orm.db.base_mysql import MySQLDBConnection
+from salty_orm.db.mysql_provider import MySQLDBConnection
 from salty_orm.examples.models import RulingModel
 from salty_orm.db.query import Q, QOper
 

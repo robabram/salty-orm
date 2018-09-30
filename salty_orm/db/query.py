@@ -4,9 +4,8 @@
 #
 # Copyright (c) 2018 Robert Abram - All Rights Reserved.
 #
-
 #
-# Light python ORM, emulating some of the django ORM functionality.
+# A light python ORM, emulating some of the django ORM functionality.
 # Does not support joins between tables
 #
 # Warning: If you add properties to objects, check the clone() or combine() methods
@@ -21,7 +20,7 @@ from typing import TypeVar, Union
 
 from dateutil.parser import parse as dateparse
 
-from salty_orm.db.base_connection import BaseDBConnection
+from salty_orm.db.base_provider import BaseDBConnection
 
 
 REPR_OUTPUT_SIZE = 20
@@ -131,6 +130,7 @@ class BaseUtilityModel(object):
             self.fields.append(key)
 
         # check for datetime field
+        # TODO: Find a better way to test for datefield
         if key == 'created' or key == 'modified' or key.endswith('_dt') or key.startswith('last_') \
                 or key.endswith('_start') or key.endswith('_from') or key.endswith('_from') \
                 or key.endswith('_to'):
@@ -182,6 +182,7 @@ class BaseUtilityModel(object):
     def _get_table_columns(self) -> list:
         """
         Query the field names from the table and return the column name list
+        # TODO: Move this code to each provider to get table field name list
         """
 
         fields = list()
@@ -209,6 +210,8 @@ class BaseUtilityModel(object):
         Insert a record
         :param cleaned: Leave out fields with null values
         :return True if successfull otherwise False
+        # TODO: Move this code to each provider so we can better handle inserting records
+        # TODO: for each provider.
         """
 
         if self.db_conn is None:
@@ -227,8 +230,10 @@ class BaseUtilityModel(object):
             sql_params = '{0}, {0}, '.format(self.db_conn.placeholder)
 
         args = OrderedDict()
-        args['created'] = ts
-        args['modified'] = ts
+        if 'created' in self.fields:
+            args['created'] = ts
+        if 'modified' in self.fields:
+            args['modified'] = ts
 
         for field in self.fields:
 
@@ -261,6 +266,8 @@ class BaseUtilityModel(object):
         Update a record
         :param cleaned: Leave out fields with null values
         :return True if successfull otherwise False
+        # TODO: Move this code to each provider so we can better handle updating records
+        # TODO: for each provider.
         """
 
         if self.db_conn is None:
@@ -271,7 +278,9 @@ class BaseUtilityModel(object):
 
         sql = "UPDATE {0} SET `modified` = {1}, ".format(self.Meta.db_table, self.db_conn.placeholder)
         args = OrderedDict()
-        args['modified'] = ts
+
+        if 'modified' in self.fields:
+            args['modified'] = ts
 
         for field in self.fields:
 
@@ -288,8 +297,7 @@ class BaseUtilityModel(object):
                 except Exception:
                     pass
 
-            if self.db_conn.provider == 'mysql':
-                sql += '`{0}` = {1}, '.format(field, self.db_conn.placeholder)
+            sql += '`{0}` = {1}, '.format(field, self.db_conn.placeholder)
 
             args[field] = self._sanitize(self.__dict__[field])
 

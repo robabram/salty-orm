@@ -8,7 +8,7 @@
 import os
 import sqlite3
 
-from salty_orm.db.base_connection import BaseDBConnection, NotConnectedError, ConnectionFailedError, \
+from salty_orm.db.base_provider import BaseDBConnection, NotConnectedError, ConnectionFailedError, \
     ExecStatementFailedError, InvalidStatementError
 
 
