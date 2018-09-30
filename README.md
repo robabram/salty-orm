@@ -9,6 +9,8 @@ The Salty-ORM is very similar to Django's ORM, including supporting queries usin
 
 Records can be changed and saved, new records can be created and inserted as well.
 
+Has support for handling and setting values for a 'created' and 'modified' datetime field if they exist in a table.
+
 **Examples**
 
 Connect to a MySQL Database
