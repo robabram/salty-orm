@@ -24,9 +24,9 @@ def find_package_data_files(dirs):
 def setup_package():
 
     # Recursively gather all non-python module directories to be included in packaging.
-    core_files = find_package_data_files([])
+    core_files = find_package_data_files([], )
 
-    setup(name='Salty-ORM',
+    setup(name='salty-orm',
         version=__VERSION__,
         description='A Python 3.x ORM implementing a Django ORM object model features.',
         author='Robert Abram',
