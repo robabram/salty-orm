@@ -26,13 +26,13 @@ def setup_package():
     # Recursively gather all non-python module directories to be included in packaging.
     core_files = find_package_data_files([], )
 
-    setup(name='salty-orm',
+    setup(name='salty_orm',
         version=__VERSION__,
         description='A Python 3.x ORM implementing a Django ORM object model features.',
         author='Robert Abram',
         author_email='rabram991@gmail.com',
-        url='https://github.com/robabram/Salty-ORM',
-        download_url='https://github.com/robabram/Salty-ORM',
+        url='https://github.com/robabram/salty_orm',
+        download_url='https://github.com/robabram/salty_orm',
         packages=find_packages(exclude=['tests']),
         package_data={
             'salty_orm': core_files,
