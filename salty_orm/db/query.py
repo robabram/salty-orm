@@ -604,6 +604,7 @@ class BaseQuery(object):
     def _get_sql_query(self):
         """
         Generate a parameterized sql statment and args list
+        # TODO: Move this to the Providers
         :return: SQL statment, args list
         """
 
@@ -686,6 +687,7 @@ class BaseQuery(object):
     def count(self, db_conn) -> int:
         """
         Return the number of records in the table
+        # TODO: Move this to the Providers
         :return: record count
         """
 
@@ -702,7 +704,7 @@ class BaseQuery(object):
             record = db_conn.db_exec_stmt(sql)
 
         if record:
-            return int(record['count'])
+            return int(record[0]['count'] if isinstance(record, list) else record['count'])
 
         return 0
 
