@@ -990,7 +990,7 @@ class BaseQuerySet(object):
         if kwargs:
             for field in kwargs:
                 # For the field/value to be in kwargs, the equal sign was used.
-                clone = self.filter(Q(field, QOper.O_EQUAL, kwargs[field], placeholder=self._db_conn.placeholder))
+                clone = self.filter(Q(field, QOper.O_EQUAL, kwargs[field]))
         elif args:
             clone = self.filter(*args, **kwargs)
 
