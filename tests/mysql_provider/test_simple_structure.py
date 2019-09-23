@@ -16,8 +16,8 @@ class TestQueryStructure(unittest.TestCase):
     _provider = None
 
     def setUp(self) -> None:
-
         self._provider = MySQLDBConnection(testing=True)
+        return super(TestQueryStructure, self).setUp()
 
     def test_simple_select(self):
         """ test simple select returning all columns and rows """
