@@ -621,7 +621,7 @@ class BaseQuery(object):
     def to_sql(self):
         """
         Generate the SQL statment and return it
-        :return: SQL statement
+        :return: Tuple containing SQL statement and arguments.
         """
         sql, args = self._get_sql_query()
         return sql, args
