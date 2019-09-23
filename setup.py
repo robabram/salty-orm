@@ -51,7 +51,7 @@ def setup_package():
             'pip-tools',
             'dateparser',
             'python-dateutil',
-            'mysql-connector',
+            'mysqlclient',
         ],
 
         entry_points={
