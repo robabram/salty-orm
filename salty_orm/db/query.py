@@ -618,7 +618,7 @@ class BaseQuery(object):
             else:
                 self._where.add(q_object)
 
-    def to_sql(self):
+    def to_sql(self) -> (str, list):
         """
         Generate the SQL statment and return it
         :return: Tuple containing SQL statement and arguments.
@@ -854,10 +854,10 @@ class BaseQuerySet(object):
 
         return clone
 
-    def to_sql(self) -> str:
+    def to_sql(self) -> (str, list):
         """
         Return the completed SQL statement. Use this for debugging statements
-        :return: SQL statement
+        :return: Tuple containing SQL statement and argument list.
         """
         return self.query.to_sql()
 
