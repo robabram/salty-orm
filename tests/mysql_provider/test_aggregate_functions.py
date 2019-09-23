@@ -25,6 +25,10 @@ class TestQueryStructure(unittest.TestCase):
                                 group_by('name').to_sql()
         self.assertEqual(sql, "SELECT name, MAX(id) as id__max FROM test_model GROUP BY name")
 
+        sql, args = RulingModel(self._provider).objects.aggregate(Max('id')). \
+            group_by('name').to_sql()
+        self.assertEqual(sql, "SELECT MAX(id) as id__max FROM test_model GROUP BY name")
+
     def test_min_column(self):
         """ Test a minimum column select, with group by clause """
         sql, args = RulingModel(self._provider).objects.values_list('name').aggregate(Min('id')).\

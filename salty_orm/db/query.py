@@ -646,13 +646,17 @@ class BaseQuery(object):
 
         # Setup SELECT fields
         fields = ''
-        if not self._fields or len(self._fields) == 0:
-            fields = '*'
-        else:
+        if self._fields and len(self._fields) > 0:
             fields += ', '.join(self._fields)
 
+        if not fields and not self._aggregate:
+            fields = '*'
+
         if self._aggregate:
-            fields += ', ' + ', '.join(self._aggregate)
+            if fields:
+                fields += ', ' + ', '.join(self._aggregate)
+            else:
+                fields = ', '.join(self._aggregate)
 
         # Setup SELECT WHERE clause
         where = ''
