@@ -6,7 +6,8 @@
 #
 
 import collections
-import mysql.connector as mysql
+import MySQLdb as mysql
+from typing import Union
 
 from salty_orm.db.sqlite3_provider import SqliteDBConnection as BaseDBConnection
 from salty_orm.db.base_provider import NotConnectedError, ExecStatementFailedError, InvalidStatementError
@@ -18,32 +19,30 @@ class MySQLDBConnection(BaseDBConnection):
     _buffered = False
     placeholder = '%s'  # statement argument placeholder
 
-    def db_connect(self, user=None, password=None, database=None, host=None, buffered=False) -> bool:
+    def db_connect(self, user=None, password=None, database=None, host=None, **kwargs) -> bool:
         """
-        Connect to a local sqlite3 database
-        :param alt_db_path: Alternate database path to use besides hardcoded path
-        :return: True if connected otherwise False
+        Connect to a local MySQL/Mariadb database.
+        :param user: User name to connect to database with.
+        :param password: Password to connect to database with.
+        :param database: Database name.
+        :param host: Database host name or ip address.
+        :param kwargs: Additonal named arguments to pass to MySQLdb connection.
+        :return: True if connected otherwise False.
         """
-
-        self._buffered = buffered
-
         try:
-            self._handle = mysql.connect(
-                user=user,
-                password=password,
-                database=database,
-                host=host,
-                buffered=buffered,
-            )
-
+            self._handle = mysql.connect(user=user, passwd=password, db=database, host=host, **kwargs)
             self._connected = True
             return True
-
         except Exception as e:
             raise NotConnectedError("connection attempt to database failed")
 
-    def db_exec(self, stmt: str, args: dict=None) -> bool:
-
+    def db_exec(self, stmt: str, args: Union[dict, list] = None) -> bool:
+        """
+        Execute a SQL Statement that returns no data.
+        :param stmt: SQL Statement to execute.
+        :param args: List or dictionary of parameterized arguments.
+        :return: True if successful, otherwise False.
+        """
         if self.db_connected() is False:
             raise NotConnectedError("not connected to a database")
 
@@ -62,12 +61,12 @@ class MySQLDBConnection(BaseDBConnection):
 
         return True
 
-    def db_exec_stmt(self, stmt: str, args: dict=None) -> dict:
+    def db_exec_stmt(self, stmt: str, args: Union[dict, list] = None) -> dict:
         """
-        Execute a select statement
-        :param stmt: sql statement
-        :param args: argument list
-        :return: sqlite cursor or none
+        Execute a statement that returns data.
+        :param stmt: SQL statement
+        :param args: List or dictionary of parameterized arguments.
+        :return: cursor or none
         """
         if self.db_connected() is False:
             raise NotConnectedError("not connected to a database")
@@ -115,9 +114,12 @@ class MySQLDBConnection(BaseDBConnection):
         except Exception as e:
             raise ExecStatementFailedError(e)
 
-    def db_exec_commit(self, stmt, args: dict=None) -> int:
+    def db_exec_commit(self, stmt, args: Union[dict, list] = None) -> int:
         """
-        Execute sql statement and commit
+        Execute sql statement and commit.
+        :param stmt: SQL statement
+        :param args: List or dictionary of parameterized arguments.
+        :return: Last row id or 1.
         """
 
         if self.db_connected() is False:
@@ -144,7 +146,7 @@ class MySQLDBConnection(BaseDBConnection):
             raise ExecStatementFailedError(e)
 
     def db_commit(self) -> bool:
-        super(MySQLDBConnection, self).db_commit()
+        return super(MySQLDBConnection, self).db_commit()
 
     def db_attach_database(self, alias, db_path=None) -> bool:
         raise NotImplementedError()

@@ -1,3 +1,3 @@
 dateparser
 python-dateutil
-mysql-connector
+mysqlclient
