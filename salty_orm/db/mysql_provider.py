@@ -34,7 +34,7 @@ class MySQLDBConnection(BaseDBConnection):
             self._connected = True
             return True
         except Exception as e:
-            raise NotConnectedError("connection attempt to database failed")
+            raise NotConnectedError("Error: Connection attempt to database failed. \n{0}".format(e))
 
     def db_exec(self, stmt: str, args: Union[dict, list] = None) -> bool:
         """
