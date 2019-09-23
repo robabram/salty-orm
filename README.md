@@ -17,7 +17,7 @@ Connect to a MySQL Database
 
 `dbconn = MySQLDBConnection()`
 
-`dbconn.db_connect(user='tester', password='****', database='test_db', host='xx.xx.xx.xx', buffered=True)`
+`dbconn.db_connect(user='tester', password='****', database='test_db', host='xx.xx.xx.xx')`
 
 Simple Query
 
