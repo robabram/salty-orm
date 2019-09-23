@@ -68,6 +68,11 @@ class ModelRequired(ModelError):
     pass
 
 
+class ModelFieldRequired(ModelError):
+    """ python exception class """
+    pass
+
+
 class BaseUtilityModel(object):
     """
     This Model object is used as a base for data retrieval and manipulation
@@ -91,13 +96,11 @@ class BaseUtilityModel(object):
         """
 
         self.db_conn = db_conn
+        self.fields = list()
+        self.objects = BaseQuerySet(db_conn, model=self)
 
-        if db_conn is not None:
-            self.objects = BaseQuerySet(db_conn, model=self)
+        if db_conn is not None and not db_conn.testing:
             self.fields = self._get_table_columns()
-        else:
-            self.objects = None
-            self.fields = list()
 
         if args is not None and len(args) is not 0 and args[0] is not None:
             # self._json_data = True
@@ -107,8 +110,6 @@ class BaseUtilityModel(object):
         else:
             for key, value in kwargs.items():
                 self._set_field_value(key, value)
-
-        pass
 
     def _sanitize(self, value, delimeter=','):
         """ If value is a type of list object then convert to a string """
@@ -400,7 +401,7 @@ class Q(object):
 
     _field = None  # type: str
     _field_operator = QOper.O_EQUAL  # type: QOper
-    _value = None  # type: Union[str, int]
+    _value = None  # type: Union[str, int, list]
     _between_value = None  # type: Union[str, int]
     _placeholder = '?'
 
@@ -410,17 +411,24 @@ class Q(object):
     child = None  # type: Q
     child_connector = QConn.C_AND  # Type: QConn
 
-    def __init__(self, field: str, operator: QOper=QOper.O_EQUAL, value=None, placeholder=None, *args):
+    def __init__(self, field: str, operator: QOper=QOper.O_EQUAL, value=None, *args):
         self._field = field
         self._field_operator = operator
         self._value = value
-        self._placeholder = placeholder
+        self._placeholder = '?'
 
         if operator == QOper.O_BETWEEN:
             if len(args) == 1:
                 self._between_value = args[0]
             else:
                 raise ValueError('Second value in between operation missing')
+        elif operator == QOper.O_IN:
+            values = list()
+            values.append(value)
+            if args:
+                for v in args:
+                    values.append(v)
+            self._value = values
 
     def add(self, q_object, conn: QConn=QConn.C_AND):
         self.child = q_object
@@ -475,12 +483,15 @@ class Q(object):
             invert = 'NOT '
 
         if self._field_operator == QOper.O_IS_NULL:
-            clause += ' `{0}` IS {1}NULL'.format(self._field, invert)
+            clause += ' {0} IS {1}NULL'.format(self._field, invert)
         elif self._field_operator == QOper.O_BETWEEN:
-            clause += ' {0}`{1}` {2} {3} AND {3}'.format(
+            clause += ' {0}{1} {2} {3} AND {3}'.format(
                         invert, self._field, self._field_operator.value, placeholder)
+        elif self._field_operator == QOper.O_IN:
+            plhs = ', '.join('?' for x in self._value)
+            clause += ' {0}{1} {2} ({3})'.format(invert, self._field, self._field_operator.value, plhs)
         else:
-            clause += ' {0}`{1}` {2} {3}'.format(invert, self._field, self._field_operator.value, placeholder)
+            clause += ' {0}{1} {2} {3}'.format(invert, self._field, self._field_operator.value, placeholder)
 
         if self.child:
             clause += ' {0}{1}'.format(self.child_connector.value, str(self.child))
@@ -495,7 +506,11 @@ class Q(object):
         if not args:
             args = list()
 
-        args.append(self._value)
+        if isinstance(self._value, list):
+            for v in self._value:
+                args.append(v)
+        else:
+            args.append(self._value)
 
         if self._between_value is not None:
             args.append(self._between_value)
@@ -515,9 +530,11 @@ class BaseQuery(object):
     # None or list object with fields used in query or
     _fields = None  # type: list
     _order_by = None  # type: list
+    _group_by = None  # type: list
 
     _where = None  # type: Q
     _distinct = False  # type: bool
+    _aggregate = False  # type: list
     _limit = None  # type: int
 
     _custom_sql = None  # type: str
@@ -525,7 +542,7 @@ class BaseQuery(object):
 
     model = None  # type: BaseUtilityModel_T
 
-    def __init__(self, model: BaseUtilityModel_T=None):
+    def __init__(self, model: BaseUtilityModel_T = None):
 
         self.model = model
 
@@ -537,11 +554,10 @@ class BaseQuery(object):
 
         clone = self.__class__(model=self.model)
 
-        # Clone our properties
-        clone._distinct = self._distinct
-        clone._fields = self._fields
-        clone._where = self._where
-        clone._order_by = self._order_by
+        # Clone our underscore properties
+        for k, v in self.__dict__.items():
+            if k.startswith('_'):
+                clone.__dict__[k] = self.__dict__[k]
 
         clone.__dict__.update(kwargs)
 
@@ -550,8 +566,16 @@ class BaseQuery(object):
     def set_distinct(self):
         self._distinct = True
 
+    def set_aggregate(self, *args):
+        self._aggregate = list()
+        for arg in args:
+            self._aggregate.append(str(arg))
+
     def set_fields(self, fields):
         self._fields = fields
+
+    def set_group_by(self, fields):
+        self._group_by = fields
 
     def set_order_by(self, fields):
         self._order_by = fields
@@ -599,7 +623,7 @@ class BaseQuery(object):
         :return: SQL statement
         """
         sql, args = self._get_sql_query()
-        return sql
+        return sql, args
 
     def _get_sql_query(self):
         """
@@ -618,10 +642,14 @@ class BaseQuery(object):
         distinct = '' if self._distinct is False else ' DISTINCT'
 
         # Setup SELECT fields
+        fields = ''
         if not self._fields or len(self._fields) == 0:
             fields = '*'
         else:
-            fields = ', '.join(self._fields)
+            fields += ', '.join(self._fields)
+
+        if self._aggregate:
+            fields += ', ' + ', '.join(self._aggregate)
 
         # Setup SELECT WHERE clause
         where = ''
@@ -629,6 +657,12 @@ class BaseQuery(object):
         if self._where:
             where = ' WHERE{0}'.format(str(self._where))
             args = self._where.get_args()
+
+        # Setup SELECT GROUP BY clause
+        if not self._group_by or len(self._group_by) == 0:
+            group_by = ''
+        else:
+            group_by = ' GROUP BY {0}'.format(', '.join(self._group_by))
 
         # Setup SELECT ORDER BY clause
         if not self._order_by or len(self._order_by) == 0:
@@ -642,10 +676,10 @@ class BaseQuery(object):
             limit = ' LIMIT {0}'.format(self._limit)
 
         # Build SQL query here
-        sql = 'SELECT{0} {1} FROM {2}{3}{4}{5}'.format(distinct, fields, db_table, where, order_by, limit)
+        sql = 'SELECT{0} {1} FROM {2}{3}{4}{5}{6}'.format(distinct, fields, db_table, where, group_by, order_by, limit)
 
-        # print('SQL  : {0}'.format(sql))
-        # print('ARGS : {0}'.format(args))
+        # TODO: Future: Figure out the best location to set the correct argument value placeholder.
+        # TODO: Future: Right now we are defaulting to '?' for the argument value placeholder.
 
         return sql, args
 
@@ -718,6 +752,9 @@ class BaseQuerySet(object):
     _result_cache = None  # type: list
     _db_conn = None  # type: BaseDBConnection
 
+    _group_by = None  # type: list
+    _order_by = None  # type: list
+
     query = None  # type: BaseQuery
     model = None  # type: BaseUtilityModel_T
 
@@ -739,8 +776,11 @@ class BaseQuerySet(object):
         query = self.query.clone()
         clone = self.__class__(db_conn=self._db_conn, model=self.model, query=query)
 
-        clone._filter = self._filter
-        clone._result_cache = self._result_cache
+        # Clone our underscore properties
+        for k, v in self.__dict__.items():
+            if k.startswith('_'):
+                clone.__dict__[k] = self.__dict__[k]
+
         clone.query = query
 
         clone.__dict__.update(kwargs)
@@ -848,6 +888,17 @@ class BaseQuerySet(object):
 
         return clone
 
+    def group_by(self, *fields, **kwargs):
+
+        if kwargs:
+            raise TypeError('Unexpected keyword arguments to group_by: %s' % (list(kwargs),))
+
+        clone = self._clone()
+        clone._group_by = list(fields)
+        clone.query.set_group_by(fields)
+
+        return clone
+
     def all(self):
         """
         Returns a new QuerySet that is a copy of the current one. This allows a
@@ -864,12 +915,27 @@ class BaseQuerySet(object):
         return clone
 
     def distinct(self, *args, **kwargs):
-
+        """
+        Return a distinct set of results
+        """
         if args or kwargs:
             raise TypeError('Unexpected keyword arguments to distinct: %s' % (list(kwargs),))
 
         clone = self._clone()
         clone.query.set_distinct()
+
+        return clone
+
+    def aggregate(self, *args, **kwargs):
+        """
+        Return an aggregate value from a set of records
+        :param args: list of aggregate functions
+        """
+        if kwargs:
+            raise TypeError('Unexpected keyword arguments to distinct: %s' % (list(kwargs),))
+
+        clone = self._clone()
+        clone.query.set_aggregate(*args)
 
         return clone
 

@@ -42,6 +42,11 @@ class BaseDBConnection(object):
     provider = None  # Database provider name
     placeholder = '?'  # statement argument placeholder
 
+    testing = False  # unit testing flag.
+
+    def __init__(self, testing: bool = False):
+        self.testing = testing
+
     def __del__(self):
         pass
 
@@ -52,7 +57,7 @@ class BaseDBConnection(object):
         # return self._name
         return type(self).__name__
 
-    def db_connect(self, alt_db_path=None) -> bool:
+    def db_connect(self, alt_db_path: str = None) -> bool:
 
         raise NotImplementedError()
 
