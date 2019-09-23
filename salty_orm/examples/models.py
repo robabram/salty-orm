@@ -7,10 +7,10 @@
 # A sample Salty-ORM model object
 
 
-from salty_orm.db.query import BaseUtilityModel
+from salty_orm.db.query import BaseTableModel
 
 
-class RulingModel(BaseUtilityModel):
+class RulingModel(BaseTableModel):
 
     id = None  # type: int
     created = None  # type: datetime

@@ -74,7 +74,7 @@ class ModelFieldRequired(ModelError):
     pass
 
 
-class BaseUtilityModel(object):
+class BaseTableModel(object):
     """
     This Model object is used as a base for data retrieval and manipulation
     """
@@ -111,6 +111,9 @@ class BaseUtilityModel(object):
         else:
             for key, value in kwargs.items():
                 self._set_field_value(key, value)
+
+    def get_db_conn(self) -> BaseDBConnection:
+        return self.db_conn
 
     def _sanitize(self, value, delimeter=','):
         """ If value is a type of list object then convert to a string """
@@ -404,7 +407,7 @@ class Q(object):
     _field_operator = QOper.O_EQUAL  # type: QOper
     _value = None  # type: Union[str, int, list]
     _between_value = None  # type: Union[str, int]
-    _placeholder = '?'
+    placeholder = '??'
 
     invert = False  # type: bool
 
@@ -416,7 +419,6 @@ class Q(object):
         self._field = field
         self._field_operator = operator
         self._value = value
-        self._placeholder = '?'
 
         if operator == QOper.O_BETWEEN:
             if len(args) == 1:
@@ -475,9 +477,9 @@ class Q(object):
         clause = ''
         invert = ''
 
-        placeholder = self._placeholder
+        placeholder = self.placeholder
 
-        if placeholder != '?' and isinstance(self._value, datetime.date):
+        if isinstance(self._value, datetime.date):
             placeholder = "'{0}'".format(placeholder)
 
         if self.invert:
@@ -489,7 +491,7 @@ class Q(object):
             clause += ' {0}{1} {2} {3} AND {3}'.format(
                         invert, self._field, self._field_operator.value, placeholder)
         elif self._field_operator == QOper.O_IN:
-            plhs = ', '.join('?' for x in self._value)
+            plhs = ', '.join(placeholder for x in self._value)
             clause += ' {0}{1} {2} ({3})'.format(invert, self._field, self._field_operator.value, plhs)
         else:
             clause += ' {0}{1} {2} {3}'.format(invert, self._field, self._field_operator.value, placeholder)
@@ -602,7 +604,7 @@ class BaseQuery(object):
         if kwargs:
 
             for key in kwargs:
-                q_list.append(Q(key, QOper.O_EQUAL, kwargs[key], placeholder=self.model._db_conn.placeholder))
+                q_list.append(Q(key, QOper.O_EQUAL, kwargs[key]))
 
         else:
             for q_object in list(args):
@@ -678,6 +680,8 @@ class BaseQuery(object):
 
         # Build SQL query here
         sql = 'SELECT{0} {1} FROM {2}{3}{4}{5}{6}'.format(distinct, fields, db_table, where, group_by, order_by, limit)
+
+        sql = sql.replace(Q.placeholder,  self.model.get_db_conn().placeholder)
 
         # TODO: Future: Figure out the best location to set the correct argument value placeholder.
         # TODO: Future: Right now we are defaulting to '?' for the argument value placeholder.
@@ -761,12 +765,19 @@ class BaseQuerySet(object):
 
     def __init__(self, db_conn: BaseDBConnection, model: BaseUtilityModel_T=None, query: BaseQuery=None):
 
-        if not isinstance(model, BaseUtilityModel):
+        if not isinstance(model, BaseTableModel):
             raise ModelRequired('model parameter must be a ModelBase object')
 
         self._db_conn = db_conn
         self.model = model
         self.query = query or BaseQuery(self.model)
+
+    def get_db_conn(self) -> BaseDBConnection:
+        """
+        Return the databsae connection object.
+        :return: Database connection object.
+        """
+        return self._db_conn
 
     def _clone(self, **kwargs) -> BaseQuerySet:
         """
