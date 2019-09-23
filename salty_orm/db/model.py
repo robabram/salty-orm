@@ -27,7 +27,7 @@ class _BaseAggregateFunction(object):
     def __repr__(self):
         if not self._alias:
             self._alias = '{0}__{1}'.format(self._field, self._func.lower())
-        return '{0} ({1}) as {2}'.format(self._func, self._field, self._alias)
+        return '{0}({1}) as {2}'.format(self._func, self._field, self._alias)
 
     def __str__(self):
         return self.__repr__()
