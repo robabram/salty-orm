@@ -258,7 +258,10 @@ class BaseTableModel(object):
             sql_cols += '`{0}`, '.format(field)
             sql_params += '{0}, '.format(self.db_conn.placeholder)
 
-            args[field] = self._sanitize(self.__dict__[field])
+            try:
+                args[field] = self._sanitize(self.__dict__[field])
+            except AttributeError:
+                raise AttributeError("Found {0} in table definition, but missing in model?".format(field))
 
         sql = 'INSERT INTO {0} ({1}) VALUES ({2})'.format(self.Meta.db_table, sql_cols[:-2], sql_params[:-2])
 
