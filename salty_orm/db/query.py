@@ -342,7 +342,7 @@ class BaseTableModel(object):
         if not self.id:
             raise ValueError('This object does not have a valid id to use')
 
-        sql = 'DELETE FROM {0} WHERE id = {1}}'.format(self.Meta.db_table, self.db_conn.placeholder)
+        sql = 'DELETE FROM {0} WHERE id = {1}'.format(self.Meta.db_table, self.db_conn.placeholder)
         args = OrderedDict()
         args['id'] = self.id
 
