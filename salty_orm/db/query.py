@@ -1,4 +1,3 @@
-from __future__ import annotations
 #
 # This file is subject to the terms and conditions defined in the
 # file 'LICENSE', which is part of this source code package.
@@ -786,7 +785,7 @@ class BaseQuerySet(object):
         """
         return self._db_conn
 
-    def _clone(self, **kwargs) -> BaseQuerySet:
+    def _clone(self, **kwargs) -> "BaseQuerySet":
         """
         Creates a copy of the current instance. The 'kwargs' parameter can be
         used by clients to update attributes after copying has taken place.
@@ -860,7 +859,7 @@ class BaseQuerySet(object):
         self._fetch_all()
         return self._result_cache[k].clone()
 
-    def raw_query(self, sql, *args, **kwargs) -> BaseQuerySet:
+    def raw_query(self, sql, *args, **kwargs) -> "BaseQuerySet":
         """ Allow a user defined SQL statement and arguments """
 
         if kwargs:
@@ -885,7 +884,7 @@ class BaseQuerySet(object):
             result = self.query.run_query(self._db_conn)
             self._result_cache = result
 
-    def values_list(self, *fields, **kwargs) -> BaseQuerySet:
+    def values_list(self, *fields, **kwargs) -> "BaseQuerySet":
 
         if kwargs:
             raise TypeError('Unexpected keyword arguments to values_list: %s' % (list(kwargs),))
@@ -896,7 +895,7 @@ class BaseQuerySet(object):
 
         return clone
 
-    def order_by(self, *fields, **kwargs) -> BaseQuerySet:
+    def order_by(self, *fields, **kwargs) -> "BaseQuerySet":
 
         if kwargs:
             raise TypeError('Unexpected keyword arguments to order_by: %s' % (list(kwargs),))
@@ -907,7 +906,7 @@ class BaseQuerySet(object):
 
         return clone
 
-    def group_by(self, *fields, **kwargs) -> BaseQuerySet:
+    def group_by(self, *fields, **kwargs) -> "BaseQuerySet":
 
         if kwargs:
             raise TypeError('Unexpected keyword arguments to group_by: %s' % (list(kwargs),))
@@ -925,7 +924,7 @@ class BaseQuerySet(object):
         """
         return self._clone()
 
-    def limit(self, limit) -> BaseQuerySet:
+    def limit(self, limit) -> "BaseQuerySet":
         """
         Limit the number of records returned
         """
@@ -933,7 +932,7 @@ class BaseQuerySet(object):
         clone.query.set_limit(limit)
         return clone
 
-    def distinct(self, *args, **kwargs) -> BaseQuerySet:
+    def distinct(self, *args, **kwargs) -> "BaseQuerySet":
         """
         Return a distinct set of results
         """
@@ -945,7 +944,7 @@ class BaseQuerySet(object):
 
         return clone
 
-    def aggregate(self, *args, **kwargs) -> BaseQuerySet:
+    def aggregate(self, *args, **kwargs) -> "BaseQuerySet":
         """
         Return an aggregate value from a set of records
         :param args: list of aggregate functions
@@ -958,21 +957,21 @@ class BaseQuerySet(object):
 
         return clone
 
-    def filter(self, *args, **kwargs) -> BaseQuerySet:
+    def filter(self, *args, **kwargs) -> "BaseQuerySet":
         """
         Returns a new QuerySet instance with the args ANDed to the existing
         set.
         """
         return self._filter_or_exclude(False, *args, **kwargs)
 
-    def exclude(self, *args, **kwargs) -> BaseQuerySet:
+    def exclude(self, *args, **kwargs) -> "BaseQuerySet":
         """
         Returns a new QuerySet instance with NOT (args) ANDed to the existing
         set.
         """
         return self._filter_or_exclude(True, *args, **kwargs)
 
-    def _filter_or_exclude(self, negate, *args, **kwargs) -> BaseQuerySet:
+    def _filter_or_exclude(self, negate, *args, **kwargs) -> "BaseQuerySet":
 
         clone = self._clone()
         clone.query.add_q(negate, *args, **kwargs)

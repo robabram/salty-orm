@@ -48,7 +48,6 @@ def setup_package():
 
         # Do not add additional requirements here, add them to requirements.in.
         install_requires=[
-            'pip-tools',
             'dateparser',
             'python-dateutil',
             'mysqlclient',
