@@ -857,7 +857,24 @@ class BaseQuerySet(object):
         Retrieves a value from the data set
         """
         self._fetch_all()
-        return self._result_cache[k].clone()
+
+        if isinstance(k, int):
+            if k < 0:
+                k += len(self._result_cache)
+            if 0 < k <= len(self._result_cache):
+                return self._result_cache[k].clone()
+            raise IndexError('The index ({0}) is out of range.'.format(k))
+        elif isinstance(k, slice):
+            start = k.start if k.start else 0
+            if start < 0:
+                if not 0 < start <= len(self._result_cache):
+                    raise IndexError('The slice start index ({0}) is out of range.'.format(k.start))
+            stop = k.stop if k.stop else 0
+            if stop < 0:
+                if not 0 < stop <= len(self._result_cache):
+                    raise IndexError('The slice stop index ({0}) is out of range.'.format(k.stop))
+            return [self._result_cache[x].clone() for x in range(start, stop, k.step if k.step else 1)]
+        raise TypeError("Invalid argument type.")
 
     def raw_query(self, sql, *args, **kwargs) -> "BaseQuerySet":
         """ Allow a user defined SQL statement and arguments """
