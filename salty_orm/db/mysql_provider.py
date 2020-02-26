@@ -47,7 +47,7 @@ class MySQLDBConnection(BaseDBConnection):
             raise NotConnectedError("not connected to a database")
 
         # Convert dict to list
-        if args and isinstance(args, collections.Mapping):
+        if args and isinstance(args, collections.abc.Mapping):
             args = args.values()
 
         try:
@@ -75,7 +75,7 @@ class MySQLDBConnection(BaseDBConnection):
             raise InvalidStatementError('sql statement is missing')
 
         # Convert dict to list
-        if args and isinstance(args, collections.Mapping):
+        if args and isinstance(args, collections.abc.Mapping):
             args = args.values()
 
         try:
@@ -129,7 +129,7 @@ class MySQLDBConnection(BaseDBConnection):
             raise InvalidStatementError('sql statement is missing')
 
         # Convert dict to list
-        if args and isinstance(args, collections.Mapping):
+        if args and isinstance(args, collections.abc.Mapping):
             args = list(args.values())
 
         try:
