@@ -868,13 +868,13 @@ class BaseQuerySet(object):
             start = k.start if k.start else 0
             if start < 0:
                 start += len(self._result_cache)
-            if not 0 < start <= len(self._result_cache):
-                raise IndexError('The slice start index ({0}) is out of range.'.format(k.start))
+            if start > len(self._result_cache):
+                start = len(self._result_cache)
             stop = k.stop if k.stop else len(self._result_cache)
             if stop < 0:
                 stop += len(self._result_cache)
-            if not 0 < stop <= len(self._result_cache):
-                raise IndexError('The slice stop index ({0}) is out of range.'.format(k.stop))
+            if stop > len(self._result_cache):
+                stop = len(self._result_cache)
             return [self._result_cache[x].clone() for x in range(start, stop, k.step if k.step else 1)]
         raise TypeError("Invalid argument type.")
 
