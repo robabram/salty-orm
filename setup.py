@@ -9,7 +9,7 @@ import os
 from distutils.core import setup
 from setuptools import find_packages
 
-__VERSION__ = "0.2.3"
+__VERSION__ = "0.2.4"
 
 
 def find_package_data_files(dirs):
