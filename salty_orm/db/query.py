@@ -861,7 +861,7 @@ class BaseQuerySet(object):
         if isinstance(k, int):
             if k < 0:
                 k += len(self._result_cache)
-            if 0 < k <= len(self._result_cache):
+            if 0 <= k < len(self._result_cache):
                 return self._result_cache[k].clone()
             raise IndexError('The index ({0}) is out of range.'.format(k))
         elif isinstance(k, slice):
