@@ -224,19 +224,17 @@ class BaseTableModel(object):
         sql_cols = ''
         args = OrderedDict()
         ts = datetime.datetime.utcnow()
+        sql_params = ''
 
         # Support created and modified fields if present in table schema.
         if 'created' in self.fields:
             sql_cols += '`created`, '
-            args['created'] = self.created =  ts
+            args['created'] = self.created = ts
+            sql_params += '{0}, '.format(self.db_conn.placeholder)
         if 'modified' in self.fields:
             sql_cols += '`modified`, '
             args['modified'] = self.modified = ts
-
-        if self.db_conn.provider == 'mysql':
-            sql_params = '%s, %s, '.format(self.db_conn.placeholder)
-        else:
-            sql_params = '{0}, {0}, '.format(self.db_conn.placeholder)
+            sql_params += '{0}, '.format(self.db_conn.placeholder)
 
         for field in self.fields:
             if field in 'id,created,modified':
