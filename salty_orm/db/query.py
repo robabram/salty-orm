@@ -221,26 +221,24 @@ class BaseTableModel(object):
         if self.db_conn is None:
             raise ConnectionError('This object has no database connection.')
 
+        sql_cols = ''
+        args = OrderedDict()
         ts = datetime.datetime.utcnow()
 
-        self.created = ts
-        self.modified = ts
-
-        sql_cols = '`created`, `modified`, '
+        # Support created and modified fields if present in table schema.
+        if 'created' in self.fields:
+            sql_cols += '`created`, '
+            args['created'] = self.created =  ts
+        if 'modified' in self.fields:
+            sql_cols += '`modified`, '
+            args['modified'] = self.modified = ts
 
         if self.db_conn.provider == 'mysql':
             sql_params = '%s, %s, '.format(self.db_conn.placeholder)
         else:
             sql_params = '{0}, {0}, '.format(self.db_conn.placeholder)
 
-        args = OrderedDict()
-        if 'created' in self.fields:
-            args['created'] = ts
-        if 'modified' in self.fields:
-            args['modified'] = ts
-
         for field in self.fields:
-
             if field in 'id,created,modified':
                 continue
 
@@ -280,17 +278,15 @@ class BaseTableModel(object):
         if self.db_conn is None:
             raise ConnectionError('This object has no database connection.')
 
-        ts = datetime.datetime.utcnow()
-        self.modified = ts
-
-        sql = "UPDATE {0} SET `modified` = {1}, ".format(self.Meta.db_table, self.db_conn.placeholder)
+        sql = "UPDATE {0} SET ".format(self.Meta.db_table)
         args = OrderedDict()
 
+        # Support modified fields if present in table schema.
         if 'modified' in self.fields:
-            args['modified'] = ts
+            sql += "`modified` = {0}, ".format(self.db_conn.placeholder)
+            args['modified'] = self.modified = datetime.datetime.utcnow()
 
         for field in self.fields:
-
             if field in 'id,created,modified':
                 continue
 
