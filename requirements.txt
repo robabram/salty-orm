@@ -4,10 +4,10 @@
 #
 #    pip-compile
 #
-dateparser==0.7.2
-mysqlclient==1.4.4
-python-dateutil==2.8.0
-pytz==2019.2              # via dateparser, tzlocal
-regex==2019.8.19          # via dateparser
-six==1.12.0               # via python-dateutil
-tzlocal==2.0.0            # via dateparser
+dateparser>=0.7.2
+mysqlclient>=1.4.4
+python-dateutil>=2.8.0
+pytz>=2019.2              # via dateparser, tzlocal
+regex>=2019.8.19          # via dateparser
+six>=1.12.0               # via python-dateutil
+tzlocal>=2.0.0            # via dateparser

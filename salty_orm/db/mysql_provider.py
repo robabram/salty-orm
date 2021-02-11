@@ -36,6 +36,63 @@ class MySQLDBConnection(BaseDBConnection):
         except Exception as e:
             raise NotConnectedError("Error: Connection attempt to database failed. \n{0}".format(e))
 
+    def db_cursor(self):
+        """
+        Return a mysql connection cursor object
+        :return: Cursor object """
+        if self.db_connected() is False:
+            raise NotConnectedError("not connected to a database")
+
+        cursor = self._handle.cursor()
+        return cursor
+
+    def db_callproc(self, proc: str, args: Union[dict, list] = None) -> dict:
+        """
+        Call a database stored procedure.
+        :param proc: procedure name
+        :param args: arguments to procedure.
+        :return: dict
+        """
+        if self.db_connected() is False:
+            raise NotConnectedError("not connected to a database")
+        if not proc:
+            raise ValueError('Procedure name must not be empty.')
+
+        # Convert dict to list
+        if args and isinstance(args, collections.abc.Mapping):
+            args = args.values()
+
+        try:
+
+            cursor = self._handle.cursor()
+            cursor.callproc(proc, args)
+
+            data = cursor.fetchall()
+
+            fields = list()
+
+            if cursor.description is not None:
+
+                for x in range(len(cursor.description)):
+                    fields.append(cursor.description[x][0])
+
+                new_data = list()
+
+                for row in data:
+
+                    d = dict()
+                    for idx, col in enumerate(fields):
+                        d[col] = row[idx]
+
+                    new_data.append(d)
+
+                data = new_data
+
+            cursor.close()
+            return data
+        except Exception as e:
+            raise ExecStatementFailedError(e)
+
     def db_exec(self, stmt: str, args: Union[dict, list] = None) -> bool:
         """
         Execute a SQL Statement that returns no data.

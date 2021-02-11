@@ -4,6 +4,8 @@
 #
 # Copyright (c) 2018 Robert Abram - All Rights Reserved.
 #
+from typing import Union
+
 
 class ConnectionError(Exception):
     """Base class for exceptions in this module."""
@@ -80,6 +82,14 @@ class BaseDBConnection(object):
         Test the connection for connection errors with a simple Select statement
         :return: True if connection is good otherwise False, exception message
         """
+        raise NotImplementedError()
+
+    def db_cursor(self):
+
+        raise NotImplementedError()
+
+    def db_callproc(self, proc: str, args: Union[dict, list] = None) -> dict:
+
         raise NotImplementedError()
 
     def db_exec(self, sql: str, args: dict=None) -> bool:
